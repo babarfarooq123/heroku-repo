@@ -54,16 +54,16 @@ app.post('/register', (req, res) => {
 })
 
 app.post('/getotp', (req, res) => {
-    const otpres = otp.sendOtp(`+92${req.body.phone}`);
-    if(otpres){
+    otp.sendOtp(`+92${req.body.phone}`);
+    // if(otpres){
         res.status(200).send({
             "otp": "send"
         })
-    }else{
-        res.status(503).send({
-            "message": "Service Unavailable"
-        })
-    }
+    // }else{
+        // res.status(503).send({
+        //     "message": "Service Unavailable"
+        // })
+    // }
 })
 
 app.post('/verify', (req, res) => {
