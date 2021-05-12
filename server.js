@@ -31,35 +31,39 @@ app.post('/register', (req, res) => {
     const regData = {
         firstName: req.body.fName, 
         lastName: req.body.lName, 
-        phone: req.body.phone, 
-        address: req.body.address, 
+        phone: `+92${req.body.phone}`,
+        gender: req.body.gender,
+        email: req.body.email,
+        otpStatus: false,
         password: req.body.password
     }
-    // const user = new registerUser(regData);
-    // user.save()
-    // .then(() => {
-    //     res.json({"status": 'true'});
-    // })
-    // .catch(() => {
-    //     res.json({"status": 'false'});
-    // });
+    const user = new registerUser(regData);
+    user.save()
+    .then(() => {
+        res.json({"status": 'true'});
+    })
+    .catch(() => {
+        res.json({"status": 'false'});
+    });
     // console.log(regData);
     // res.send("success")
 
     // sending otp code
     // const welcomeMessage = 'Welcome to Chillz! Your verification code is 54875';
-    otp.sendOtp(regData.phone)
-    // if(){
-    res.status(201).send({
-        "message": 'Otp Send',
-        // data: regData.firstName+' '+regData.lastName
-    // })}else{
-        // res.status(404).send({
-            // "message": 'error otp',
-            // data: regData.firstName+' '+regData.lastName
-        // })
-    // }
+    
 })
+
+app.post('/getotp', (req, res) => {
+    if(otp.sendOtp(`+92${req.body.phone}`)){
+        // if(){
+        res.status(200).send({
+            "otp": "send"
+        })
+    }else{
+        res.status(503).send({
+            "message": "Service Unavailable"
+        })
+    }
 })
 
 app.post('/verify', (req, res) => {
@@ -67,18 +71,15 @@ app.post('/verify', (req, res) => {
         phone: req.body.phone,
         code: req.body.code,
     }
-    otp.verifyOtp(obj.phone, obj.code)
-    // if(){
+    if(otp.verifyOtp(obj.phone, obj.code)){
         res.status(200).send({
             "message": 'Verified',
-            // data: regData.firstName+' '+regData.lastName
-        // })}else{
-            // res.status(404).send({
-            //     "message": 'Not Verified',
-                // data: regData.firstName+' '+regData.lastName
-            // })
-        // }
-})
+        })
+    }else{
+        res.status(400).send({
+            "message": "Invalid input",
+        })
+    }
 })
 
 app.post('/dummy', (req, res) => {

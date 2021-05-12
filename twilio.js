@@ -14,8 +14,8 @@ const sendOtp = (phone) => {
         to: phone,
        channel: "sms"
      })
-    .then(message => console.log('otp sent twilio'))
-    .catch(err => console.log('otp error twilio', err));
+    .then(message => {return true})
+    .catch(err => {return false});
 }
 const verifyOtp = (phone, code) => {
   const client = require('twilio')(accountSid, authToken);
@@ -27,8 +27,8 @@ const verifyOtp = (phone, code) => {
         to: phone,
        code: code
      })
-    .then(message => console.log("verified"))
-    .catch(err => console.log("not verified"));
+    .then(message => {return true})
+    .catch(err => {return false});
 }
 
 // const obj = {
