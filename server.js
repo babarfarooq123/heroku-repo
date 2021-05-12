@@ -54,8 +54,8 @@ app.post('/register', (req, res) => {
 })
 
 app.post('/getotp', (req, res) => {
-    if(otp.sendOtp(`+92${req.body.phone}`)){
-        // if(){
+    const otpres = otp.sendOtp(`+92${req.body.phone}`);
+    if(otpres){
         res.status(200).send({
             "otp": "send"
         })
