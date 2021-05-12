@@ -6,6 +6,10 @@ const app = express();
 const mongoose = require("mongoose");
 require("./models/registerModel");
 
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const serviceId = process.env.TWILIO_SERVICE_ID;
+
 app.use(cors());
 app.use(bodyParser());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -54,15 +58,27 @@ app.post('/register', (req, res) => {
 })
 
 app.post('/getotp', (req, res) => {
-    if(otp.sendOtp(req.body.phone)){
-        res.status(200).send({
-            "otp": "send"
-        })
-    }else{
-        res.status(503).send({
-            "message": "Service Unavailable"
-        })
-    }
+    // if(otp.sendOtp(req.body.phone)){
+    //     res.status(200).send({
+    //         "otp": "send"
+    //     })
+    // }else{
+    //     res.status(503).send({
+    //         "message": "Service Unavailable"
+    //     })
+    // }
+
+    const client = require('twilio')(accountSid, authToken);
+  client
+    .verify
+    .services(serviceId)
+    .verifications
+    .create({
+        to: req.body.phone,
+       channel: "sms"
+     })
+    .then(message => {res.status(200).send({"otp": "send"})})
+    .catch(err => {res.status(503).send({"message": "Service Unavailable"})});
 })
 
 app.post('/verify', (req, res) => {
