@@ -68,10 +68,10 @@ app.post('/getotp', (req, res) => {
     //     })
     // }
 
-    const client = require('twilio')(accountSid, authToken);
+    const client = require('twilio')("AC1538bd57fdd1627cc6dea7032644613a", "f4b4839d1b518b10102fa85179f7a850");
   client
     .verify
-    .services(serviceId)
+    .services("VA871b3266fd5f9f0a902acf12101abe81")
     .verifications
     .create({
         to: req.body.phone,
