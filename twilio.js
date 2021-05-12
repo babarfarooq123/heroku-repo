@@ -1,8 +1,8 @@
 require('dotenv').config();
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const serviceId = process.env.TWILIO_SERVICE_ID;
+const accountSid = "AC1538bd57fdd1627cc6dea7032644613a";
+const authToken = "f4b4839d1b518b10102fa85179f7a850";
+const serviceId = "VA871b3266fd5f9f0a902acf12101abe81";
 
 const sendOtp = (phone) => {
   const client = require('twilio')(accountSid, authToken);
