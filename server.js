@@ -68,14 +68,14 @@ app.post('/getotp', (req, res) => {
     //     })
     // }
 
-    const client = require('twilio')("AC1538bd57fdd1627cc6dea7032644613a", "f4b4839d1b518b10102fa85179f7a850");
+    const client = require('twilio')(accountSid, authToken);
   client
     .verify
-    .services("VA871b3266fd5f9f0a902acf12101abe81")
+    .services(serviceId)
     .verifications
     .create({
         to: req.body.phone,
-       channel: "sms"
+        channel: "sms"
      })
     .then(message => {res.status(200).send({"otp": "send"})})
     .catch(err => {res.status(503).send({"message": "Service Unavailable"})});
