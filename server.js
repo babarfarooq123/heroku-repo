@@ -86,15 +86,35 @@ app.post('/verify', (req, res) => {
         phone: req.body.phone,
         code: req.body.code,
     }
-    if(otp.verifyOtp(obj.phone, obj.code)){
-        res.status(200).send({
-            "message": 'Verified',
+    // if(otp.verifyOtp(obj.phone, obj.code)){
+    //     res.status(200).send({
+    //         "message": 'Verified',
+    //     })
+    // }else{
+    //     res.status(400).send({
+    //         "message": "Invalid input",
+    //     })
+    // }
+
+    const client = require('twilio')(accountSid, authToken);
+    client
+        .verify
+        .services(serviceId)
+        .verificationChecks
+        .create({
+            to: obj.phone,
+            code: obj.code
         })
-    }else{
-        res.status(400).send({
-            "message": "Invalid input",
+        .then(message => {
+            res.status(200).send({
+                "message": 'Verified',
+            })
         })
-    }
+        .catch(err => {
+            res.status(400).send({
+                "message": "Invalid input",
+            })
+        });
 })
 
 app.post('/dummy', (req, res) => {
