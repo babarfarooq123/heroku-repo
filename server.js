@@ -5,6 +5,7 @@ const otp = require('./twilio');
 const app = express();
 const mongoose = require("mongoose");
 require("./models/registerModel");
+const { MongoClient } = require("mongodb");
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -18,10 +19,14 @@ const port = process.env.PORT || 3000;
 
 const registerUser = mongoose.model('registeredUser');
 
-mongoose.connect('mongodb+srv://admin:allah786@cluster0.m3d4x.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
+const url = 'mongodb+srv://admin:allah786@cluster0.m3d4x.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+mongoose.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
+
+const client = new MongoClient(url);
+const dbName = "myFirstDatabase";
 
 mongoose.connection.on("connected", () => {
     console.log("mongodb connection successfull");
@@ -31,15 +36,32 @@ mongoose.connection.on("error", () => {
 })
 
 
+app.get("/data",async (req,res)=>{
+    try{
+        await client.connect();
+        console.log("Connected correctly to server");
+        const db = client.db(dbName);
+        const col = db.collection("registeredUser");
+    }catch(err){
+        console.log(err.stack())
+    }
+
+    // mongoose.Collection("registeredUser").find({}).then((data)=>{
+    //     console.log(data);
+    // }).catch(()=>{
+    //     console.log("not data!")
+    // })
+})
+
 app.post('/register', (req, res) => {
     const regData = {
         firstName: req.body.fName, 
         lastName: req.body.lName, 
-        phone: `+92${req.body.phone}`,
         gender: req.body.gender,
         email: req.body.email,
         otpStatus: false,
-        password: req.body.password
+        password: req.body.password,
+        phone: `+92${req.body.phone}`
     }
     const user = new registerUser(regData);
     user.save()
