@@ -112,24 +112,51 @@ app.post('/getotp', (req, res) => {
     //     })
     // }
 
-    const client = require('twilio')(accountSid, authToken);
-  client
-    .verify
-    .services(serviceId)
-    .verifications
-    .create({
-        to: req.body.phone,
-        channel: "sms"
-     })
-    .then(message => {res.status(200).send({"otp": "send"})})
-    .catch(err => {res.status(503).send({"message": "Service Unavailable"})});
+    registerUser.find({"_id": req.body.id}).then((data) => {
+        if(data){
+            const client = require('twilio')(accountSid, authToken);
+            client
+                .verify
+                .services(serviceId)
+                .verifications
+                .create({
+                    to: data.phone,
+                    channel: "sms"
+                })
+                .then(message => {res.status(200).send({"otp": "send"})})
+                .catch(err => {res.status(503).send({"message": "Service Unavailable"})});
+                    }
+                })
 })
 
 app.post('/verify', (req, res) => {
     const obj = {
-        phone: req.body.phone,
+        // phone: req.body.phone,
         code: req.body.code,
     }
+    registerUser.find({"_id": req.body.id}).then((data) => {
+        if(data){
+            const client = require('twilio')(accountSid, authToken);
+        client
+            .verify
+            .services(serviceId)
+            .verificationChecks
+            .create({
+                to: data.phone,
+                code: obj.code
+            })
+            .then(message => {
+                res.status(200).send({
+                    "message": 'Verified',
+                })
+            })
+            .catch(err => {
+                res.status(400).send({
+                    "message": "Invalid input",
+                })
+            });
+            }
+    })
     // if(otp.verifyOtp(obj.phone, obj.code)){
     //     res.status(200).send({
     //         "message": 'Verified',
@@ -140,25 +167,7 @@ app.post('/verify', (req, res) => {
     //     })
     // }
 
-    const client = require('twilio')(accountSid, authToken);
-    client
-        .verify
-        .services(serviceId)
-        .verificationChecks
-        .create({
-            to: obj.phone,
-            code: obj.code
-        })
-        .then(message => {
-            res.status(200).send({
-                "message": 'Verified',
-            })
-        })
-        .catch(err => {
-            res.status(400).send({
-                "message": "Invalid input",
-            })
-        });
+    
 })
 
 app.post('/dummy', (req, res) => {
