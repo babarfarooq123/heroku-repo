@@ -5,7 +5,6 @@ const otp = require('./twilio');
 const app = express();
 const mongoose = require("mongoose");
 require("./models/registerModel");
-const { MongoClient } = require("mongodb");
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -25,8 +24,8 @@ mongoose.connect(url, {
     useUnifiedTopology: true
 })
 
-const client = new MongoClient(url);
-const dbName = "myFirstDatabase";
+// const client = new MongoClient(url);
+// const dbName = "myFirstDatabase";
 
 mongoose.connection.on("connected", () => {
     console.log("mongodb connection successfull");
@@ -37,14 +36,28 @@ mongoose.connection.on("error", () => {
 
 
 app.get("/data",async (req,res)=>{
-    try{
-        await client.connect();
-        console.log("Connected correctly to server");
-        const db = client.db(dbName);
-        const col = db.collection("registeredUser");
-    }catch(err){
-        console.log(err.stack())
-    }
+    // try{
+    //     await client.connect();
+    //     console.log("Connected correctly to server");
+    //     const db = client.db(dbName);
+    //     collection("registeredUser").then((data)=>{
+    //         console.log(data)
+    //     });
+       
+    //     console.log('end');
+    // }catch(err){
+        // console.log(err.stack())
+    // }
+
+    // console.log('data ===>>>');
+  let arr = []
+   arr=(await registerUser.find({}).then((data)=>{
+       return data
+   }))
+
+   if(arr){
+       console.log(arr);
+   }
 
     // mongoose.Collection("registeredUser").find({}).then((data)=>{
     //     console.log(data);
@@ -53,7 +66,7 @@ app.get("/data",async (req,res)=>{
     // })
 })
 
-app.post('/register', (req, res) => {
+app.post('/register',(req, res) => {
     const regData = {
         firstName: req.body.fName, 
         lastName: req.body.lName, 
@@ -63,19 +76,28 @@ app.post('/register', (req, res) => {
         password: req.body.password,
         phone: `+92${req.body.phone}`
     }
-    const user = new registerUser(regData);
-    user.save()
-    .then(() => {
-        res.json({"status": 'true'});
-    })
-    .catch(() => {
+    
+    registerUser.find({$or: [{"email": regData.email},{"phone": regData.phone}]}).then((data) => {
+      
+       if(data.length){
         res.json({"status": 'false'});
-    });
-    // console.log(regData);
-    // res.send("success")
+       }else{
+        const user = new registerUser(regData);
+            user.save()
+            .then(() => {
+                registerUser.find({"email": regData.email}).then((data) => {
+                    // console.log(data[0]._id);
+                    res.json({"status": data[0]._id});
+                })
+            })
+            .catch(() => {
+                res.json({"status": 'false'});
+            });
+       }
+    }).catch(() => {
+        res.json({"status": 'NETWORK ISSUE'});
+    })
 
-    // sending otp code
-    // const welcomeMessage = 'Welcome to Chillz! Your verification code is 54875';
     
 })
 
